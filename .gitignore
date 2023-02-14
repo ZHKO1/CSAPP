@@ -1,0 +1,7 @@
+.DS_Store
+*.out
+*/*.out
+*.exe
+*/*.exe
+
+book.pdf
