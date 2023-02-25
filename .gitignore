@@ -3,5 +3,5 @@
 */*.out
 *.exe
 */*.exe
-
-book.pdf
+/*.out.dSYM/
+*/*/*.out.dSYM/
