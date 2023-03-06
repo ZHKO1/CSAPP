@@ -16,6 +16,7 @@ test: $(PROGS_TEST)
 
 %.test: %
 	./$<
+	rm -f $<
 
 .PHONY : clean
 clean:
