@@ -33,7 +33,7 @@ int sra1(int x, int k)
   unsigned leftest_bit = 1 << (w - 1);
   unsigned is_pos = !(x & leftest_bit);
   // 画龙点睛之笔，如果is_pos是1，那么mask被清0，如果is_pos是负，那么mask&-1，相当于mask没变
-  mask = mask & (is_pos - 1); 
+  mask = mask & (is_pos - 1);
   return xsrl | mask;
 }
 
