@@ -143,7 +143,9 @@ NOTES:
  *   Rating: 1
  */
 int bitXor(int x, int y) {
-  return 2;
+  int xandy = x & y;
+  int xrandyr = (~x) & (~y);
+  return ~xandy & ~xrandyr;
 }
 /* 
  * tmin - return minimum two's complement integer 
@@ -152,9 +154,7 @@ int bitXor(int x, int y) {
  *   Rating: 1
  */
 int tmin(void) {
-
-  return 2;
-
+  return 1 << 31;
 }
 //2
 /*
@@ -165,7 +165,14 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  return 2;
+  int x_reverse = ~x;
+  int x_reverse_is_not_zero = !!x_reverse;
+  // 这里很奇葩，如果写成如下一行，就会报错。报错原因不明
+  // int two_x_reverse_sum = x_reverse + x_reverse
+  int two_x_reverse_sum = x + 1 + x + 1;
+  int two_x_reverse_sum_iszero = !(two_x_reverse_sum);
+
+  return x_reverse_is_not_zero & two_x_reverse_sum_iszero;
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -176,7 +183,9 @@ int isTmax(int x) {
  *   Rating: 2
  */
 int allOddBits(int x) {
-  return 2;
+  int num_0xAAAAAAAA = (0xAA << 24) | (0xAA << 16) | (0xAA << 8) | 0xAA;
+  int x_and_0xAAAAAAAA = x & num_0xAAAAAAAA;  
+  return !(x_and_0xAAAAAAAA ^ num_0xAAAAAAAA);
 }
 /* 
  * negate - return -x 
@@ -186,7 +195,7 @@ int allOddBits(int x) {
  *   Rating: 2
  */
 int negate(int x) {
-  return 2;
+  return ~x + 1;
 }
 //3
 /* 
@@ -199,7 +208,11 @@ int negate(int x) {
  *   Rating: 3
  */
 int isAsciiDigit(int x) {
-  return 2;
+  int is_otherbit_same = !((x & (~0xF)) ^ 0x30);
+  int bit0123 = x & 0xF;
+  int is_bit3_0 = !(bit0123 & 0x8);
+  int is_bit12_0 = !(bit0123 & 0x6);
+  return is_otherbit_same & (is_bit3_0 | is_bit12_0);
 }
 /* 
  * conditional - same as x ? y : z 
@@ -209,7 +222,11 @@ int isAsciiDigit(int x) {
  *   Rating: 3
  */
 int conditional(int x, int y, int z) {
-  return 2;
+  // 这里参考了网上思路 只需要凑成(___ & y) | (___ & z) 即可
+  int is_x_zero = !x;
+  int y_condition = is_x_zero + (~0);
+  int z_condition = ~y_condition;
+  return (y_condition & y) | (z_condition & z);
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
@@ -219,7 +236,9 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  return 2;
+  int x_neg = ~x + 1;
+  int y_minus_x = y + x_neg;
+  return !(y_minus_x & (1 << 31));
 }
 //4
 /* 
@@ -231,7 +250,13 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4 
  */
 int logicalNeg(int x) {
-  return 2;
+  // 这里参考网上思路
+  // 只有0才会返回1，其他都是返回0
+  // 怎么判断0呢，0的负数，符号位还是不变
+  // 其他的负数，符号数都会变
+  int neg = ~x + 1;
+  int sign_mask = 1<<31;
+  return ((~((x & sign_mask) | (neg & sign_mask))) >> 31) & 0x1;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
