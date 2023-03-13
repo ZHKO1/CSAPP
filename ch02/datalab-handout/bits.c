@@ -271,7 +271,23 @@ int logicalNeg(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  return 0;
+  int bit16,bit16_condition,bit8,bit8_condition,bit4,bit4_condition,bit2,bit2_condition,bit1,bit1_condition;
+  bit16 = !!(((x << 16) >> 16) ^ x);
+  bit16_condition = !bit16 + (~0);
+  x = (bit16_condition & (x >> 16)) | (~bit16_condition & x);
+  bit8 = !!(((x << 24) >> 24) ^ x);
+  bit8_condition = !bit8 + (~0);
+  x = (bit8_condition & (x >> 8)) | (~bit8_condition & x);
+  bit4 = !!(((x << 28) >> 28) ^ x);
+  bit4_condition = !bit4 + (~0);
+  x = (bit4_condition & (x >> 4)) | (~bit4_condition & x);
+  bit2 = !!(((x << 30) >> 30) ^ x);
+  bit2_condition = !bit2 + (~0);
+  x = (bit2_condition & (x >> 2)) | (~bit2_condition & x);
+  bit1 = !!(((x << 31) >> 31) ^ x);
+  bit1_condition = !bit1 + (~0);
+  // x = (bit1_condition & (x >> 1)) | (~bit1_condition & x);
+  return (bit16 << 4) + (bit8 << 3) + (bit4 << 2) + (bit2 << 1) + bit1 + 1;
 }
 //float
 /* 
@@ -286,7 +302,51 @@ int howManyBits(int x) {
  *   Rating: 4
  */
 unsigned floatScale2(unsigned uf) {
-  return 2;
+  unsigned sign = uf >> 31;
+  unsigned exp = uf >> 23 & 0xFF;
+  unsigned frac = uf & 0x7FFFFF;
+  unsigned float_bits_biase = 127;
+  int float_bits_maxE = 127;
+  if ((exp == 0xFF) && (frac != 0))
+  {
+    return uf;
+  }
+
+  if ((exp == 0xFF) && (frac == 0))
+  {
+    return uf;
+  }
+  if (exp == 0)
+  {
+    // 非规格化
+    unsigned frac_high_bit = frac >> 22;
+    if (!frac_high_bit)
+    {
+      // frac左移即可
+      frac = (frac << 1) & 0x7FFFFF;
+    }
+    else
+    {
+      // 非规格 变化为 规格化
+      frac = (frac << 1) & 0x7FFFFF;
+      exp = 1;
+    }
+  }
+  else
+  {
+    // 规格化
+    int e = exp - float_bits_biase + 1;
+    if (e <= float_bits_maxE)
+    {
+      exp += 1;
+    }
+    else
+    {
+      exp = 0xFF;
+      frac = 0;
+    }
+  }
+  return (sign << 31) | (exp << 23) | (frac & 0x7FFFFF);
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
@@ -301,7 +361,57 @@ unsigned floatScale2(unsigned uf) {
  *   Rating: 4
  */
 int floatFloat2Int(unsigned uf) {
-  return 2;
+  unsigned sign = uf >> 31;
+  unsigned exp = uf >> 23 & 0xFF;
+  unsigned frac = uf & 0x7FFFFF;
+  unsigned float_bits_biase = 127;
+  // int float_bits_maxE = 127;
+  if ((exp == 0xFF) && (frac != 0))
+  {
+    return 0x80000000;
+  }
+  if ((exp == 0xFF) && (frac == 0))
+  {
+    return 0x80000000;
+  }
+  if (exp == 0)
+  {
+    // 非规格化
+    return 0x0;
+  }
+  else
+  {
+    // 规格化
+    int e = exp - float_bits_biase;
+    if (e < 0)
+    {
+      // E = 1 - Biase
+      // 必然小于0
+      return 0;
+    }
+    else if (e >= 31)
+    {
+      // E > 31
+      // 必然大于|Tmin|
+      // E == 31
+      // 此时也有对应的int类型，正是Tmin
+      return 0x80000000;
+    }
+    else
+    {
+      if (e <= 23)
+      {
+        unsigned m = (frac | (1 << 23)) >> (23 - e);
+        return sign ? -m : m;
+      }
+      else
+      {
+        unsigned m = (frac | (1 << 23)) << (e - 23);
+        return sign ? -m : m;
+      }
+    }
+  }
+  return uf;
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
@@ -317,5 +427,21 @@ int floatFloat2Int(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatPower2(int x) {
-    return 2;
+  unsigned sign;
+  unsigned exp;
+  unsigned frac;
+  if(x < -149){
+    exp = 0;
+    frac = 0;
+  } else if(x < -126){
+    exp = 0;
+    frac = 1 << (23 + 126 + x);
+  } else if(x < 128){
+    exp = (127 + x);
+    frac = 0;
+  }else{
+    exp = 0xFF;
+    frac = 0;
+  }
+  return (sign << 31) | (exp << 23) | (frac & 0x7FFFFF);
 }
