@@ -236,9 +236,13 @@ int conditional(int x, int y, int z) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
+  int x_sign = !!(x >> 31);
+  int y_sign = !!(y >> 31);
+  int is_x_y_same_sign = !(x_sign ^ y_sign);
+  int is_x_neg_y_pos = ( x_sign & !y_sign );
   int x_neg = ~x + 1;
   int y_minus_x = y + x_neg;
-  return !(y_minus_x & (1 << 31));
+  return  ((!is_x_y_same_sign) & is_x_neg_y_pos) | (is_x_y_same_sign & !(y_minus_x & (1 << 31)));
 }
 //4
 /* 
@@ -271,7 +275,7 @@ int logicalNeg(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  int bit16, bit16_condition, bit8, bit8_condition, bit4, bit4_condition, bit2, bit2_condition, bit1, bit1_condition;
+  int bit16, bit16_condition, bit8, bit8_condition, bit4, bit4_condition, bit2, bit2_condition, bit1;//, bit1_condition;
   bit16 = !!(((x << 16) >> 16) ^ x);
   bit16_condition = !bit16 + (~0);
   x = (bit16_condition & (x >> 16)) | (~bit16_condition & x);
@@ -285,7 +289,7 @@ int howManyBits(int x) {
   bit2_condition = !bit2 + (~0);
   x = (bit2_condition & (x >> 2)) | (~bit2_condition & x);
   bit1 = !!(((x << 31) >> 31) ^ x);
-  bit1_condition = !bit1 + (~0);
+  // bit1_condition = !bit1 + (~0);
   // x = (bit1_condition & (x >> 1)) | (~bit1_condition & x);
   return (bit16 << 4) + (bit8 << 3) + (bit4 << 2) + (bit2 << 1) + bit1 + 1;
 }
@@ -427,7 +431,7 @@ int floatFloat2Int(unsigned uf) {
  *   Rating: 4
  */
 unsigned floatPower2(int x) {
-  unsigned sign;
+  unsigned sign = 0;
   unsigned exp;
   unsigned frac;
   if (x < -149)
