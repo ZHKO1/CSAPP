@@ -184,7 +184,7 @@ int isTmax(int x) {
  */
 int allOddBits(int x) {
   int num_0xAAAAAAAA = (0xAA << 24) | (0xAA << 16) | (0xAA << 8) | 0xAA;
-  int x_and_0xAAAAAAAA = x & num_0xAAAAAAAA;  
+  int x_and_0xAAAAAAAA = x & num_0xAAAAAAAA;
   return !(x_and_0xAAAAAAAA ^ num_0xAAAAAAAA);
 }
 /* 
@@ -255,7 +255,7 @@ int logicalNeg(int x) {
   // 怎么判断0呢，0的负数，符号位还是不变
   // 其他的负数，符号数都会变
   int neg = ~x + 1;
-  int sign_mask = 1<<31;
+  int sign_mask = 1 << 31;
   return ((~((x & sign_mask) | (neg & sign_mask))) >> 31) & 0x1;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
@@ -271,7 +271,7 @@ int logicalNeg(int x) {
  *  Rating: 4
  */
 int howManyBits(int x) {
-  int bit16,bit16_condition,bit8,bit8_condition,bit4,bit4_condition,bit2,bit2_condition,bit1,bit1_condition;
+  int bit16, bit16_condition, bit8, bit8_condition, bit4, bit4_condition, bit2, bit2_condition, bit1, bit1_condition;
   bit16 = !!(((x << 16) >> 16) ^ x);
   bit16_condition = !bit16 + (~0);
   x = (bit16_condition & (x >> 16)) | (~bit16_condition & x);
@@ -430,16 +430,23 @@ unsigned floatPower2(int x) {
   unsigned sign;
   unsigned exp;
   unsigned frac;
-  if(x < -149){
+  if (x < -149)
+  {
     exp = 0;
     frac = 0;
-  } else if(x < -126){
+  }
+  else if (x < -126)
+  {
     exp = 0;
     frac = 1 << (23 + 126 + x);
-  } else if(x < 128){
+  }
+  else if (x < 128)
+  {
     exp = (127 + x);
     frac = 0;
-  }else{
+  }
+  else
+  {
     exp = 0xFF;
     frac = 0;
   }
