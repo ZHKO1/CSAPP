@@ -17,3 +17,6 @@ gdb prog
 (gdb) file prog
 (gdb) x/14xb multstore
 ```
+
+# stack_radom.c
+测试验证局部变量的地址，从而验证栈随机的机制
