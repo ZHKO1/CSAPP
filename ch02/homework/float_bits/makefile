@@ -5,11 +5,12 @@ CFLAGS = -m64 -std=c99
 SRCS = $(wildcard *.c)
 LIBFILE = ./lib/random.c
 
-all:
+main:
 	gcc $(CFLAGS) $(SRCS) $(LIBFILE) -o main
 
-test:
+test: main
 	./main
+	rm -f main
 
 .PHONY : clean
 clean:
