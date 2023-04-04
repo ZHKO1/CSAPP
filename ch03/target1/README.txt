@@ -27,7 +27,7 @@ Utility program to generate byte sequences.  See documentation in lab
 handout.
 
 
-objdump -d ctarget > ctarget.disassemble
+objdump -d ctarget > ctarget.d
 
 ctarget level 1
 cat cl1.txt | ./hex2raw | ./ctarget -q
@@ -46,3 +46,14 @@ cat cl3.txt | ./hex2raw | ./ctarget -q
 ./hex2raw < cl3.txt > cl3
 ./ctarget -q -i cl3
 
+objdump -d rtarget > rtarget.d
+
+rtarget level 1
+cat rl1.txt | ./hex2raw | ./rtarget -q
+./hex2raw < rl1.txt > rl1
+./rtarget -q -i rl1
+
+rtarget level 2
+cat rl2.txt | ./hex2raw | ./rtarget -q
+./hex2raw < rl2.txt > rl2
+./rtarget -q -i rl2
