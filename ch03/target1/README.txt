@@ -30,16 +30,19 @@ handout.
 objdump -d ctarget > ctarget.disassemble
 
 ctarget level 1
-./hex2raw < ctarget.l1.txt > cl1
+cat cl1.txt | ./hex2raw | ./ctarget -q
+./hex2raw < cl1.txt > cl1
 ./ctarget -q -i cl1
 
 ctarget level 2
-
 gcc -c  cl2.s -o cl2.o
 objdump -d cl2.o > cl2.d
-./hex2raw < ctarget.l2.txt > cl2
+cat cl2.txt | ./hex2raw | ./ctarget -q
+./hex2raw < cl2.txt > cl2
 ./ctarget -q -i cl2
 
 ctarget level 3
-59b997fa
-35 39 62 39 39 37 66 61 00
+cat cl3.txt | ./hex2raw | ./ctarget -q
+./hex2raw < cl3.txt > cl3
+./ctarget -q -i cl3
+
