@@ -99,7 +99,7 @@ void getSetAndFlagFromAddress(cache *c, unsigned long address, unsigned long *se
   *flag = (address >> (b + s));
 }
 
-void readCache(cache *c, unsigned long address)
+void readCache(cache *c, unsigned long address, int v)
 {
   unsigned long setIndex = 0;
   unsigned long flag = 0;
@@ -114,6 +114,8 @@ void readCache(cache *c, unsigned long address)
     {
       line->time = time++;
       hit_count++;
+      if (v)
+        printf("address=%lx set=%ld, flag=%lx hit\n", address, setIndex, flag);
       return;
     }
   }
@@ -127,6 +129,8 @@ void readCache(cache *c, unsigned long address)
       line->flag = flag;
       line->time = time++;
       miss_count++;
+      if (v)
+        printf("address=%lx set=%ld, flag=%lx miss\n", address, setIndex, flag);
       return;
     }
   }
@@ -146,21 +150,24 @@ void readCache(cache *c, unsigned long address)
   lineLRU->time = time++;
   miss_count++;
   eviction_count++;
+  if (v)
+    printf("address=%lx set=%ld, flag=%lx miss eviction\n", address, setIndex, flag);
+  return;
 }
 
-void stepCache(cache *c, char operation, unsigned long address, int size)
+void stepCache(cache *c, char operation, unsigned long address, int size, int v)
 {
   switch (operation)
   {
   case 'L':
-    readCache(c, address);
+    readCache(c, address, v);
     break;
   case 'S':
-    readCache(c, address);
+    readCache(c, address, v);
     break;
   case 'M':
-    readCache(c, address);
-    readCache(c, address);
+    readCache(c, address, v);
+    readCache(c, address, v);
     break;
   default:
     break;
@@ -198,7 +205,7 @@ void getArg(int argc, char *argv[], int *v, int *s, int *E, int *b, char *t)
   }
 }
 
-void readTraceLine(char *line, cache *c)
+void readTraceLine(char *line, cache *c, int v)
 {
   char operation = 0;
   unsigned long address;
@@ -210,10 +217,10 @@ void readTraceLine(char *line, cache *c)
   // printf("%lx\n", address);
   // printf("%d\n", size);
 
-  stepCache(c, operation, address, size);
+  stepCache(c, operation, address, size, v);
 }
 
-void readTrace(char *tracePath, cache *c)
+void readTrace(char *tracePath, cache *c, int v)
 {
   char line[MAX_LINE_LEN];
   FILE *fp = fopen(tracePath, "r");
@@ -225,7 +232,9 @@ void readTrace(char *tracePath, cache *c)
   }
   while (fgets(line, MAX_LINE_LEN, fp) != NULL)
   {
-    readTraceLine(line, c);
+    if (v)
+      printf("%s", line);
+    readTraceLine(line, c, v);
   }
   fclose(fp);
 }
@@ -240,7 +249,7 @@ int main(int argc, char *argv[])
   cache c = createCache(s, E, b);
   // printfCache(&c);
 
-  readTrace(tracePath, &c);
+  readTrace(tracePath, &c, verbose);
 
   printSummary(hit_count, miss_count, eviction_count);
   destoryCache(&c);
