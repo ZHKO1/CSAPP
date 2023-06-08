@@ -22,12 +22,3 @@
     nm SimpleSection.o > SimpleSection.nm
   5). 查看符号表 [SimpleSection.s.read]
     readelf -s SimpleSection.o > SimpleSection.s.read
-    
-  
-  
-
-
-
->> ELF文件头 跟 /user/include/elf.h 的Elf32_Ehdr数据结构对应
-5. readelf查看ELF文件的段表结构
-readelf -S SimpleSection.o
