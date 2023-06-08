@@ -1,7 +1,7 @@
 #
 # makefile
 #
-PROGS = SimpleSection.o SimpleSection.h.obj SimpleSection.ds.obj SimpleSection.h.read elf.h SimpleSection.S.read
+PROGS = SimpleSection.o SimpleSection.h.obj SimpleSection.ds.obj SimpleSection.h.read elf.h SimpleSection.S.read SimpleSection.nm SimpleSection.s.read
 
 all: $(PROGS)
 
@@ -20,6 +20,12 @@ SimpleSection.h.read: SimpleSection.o
 SimpleSection.S.read: SimpleSection.o
 	readelf -S SimpleSection.o > SimpleSection.S.read
 
+SimpleSection.s.read: SimpleSection.o
+	readelf -s SimpleSection.o > SimpleSection.s.read
+
+SimpleSection.nm: SimpleSection.o
+	nm SimpleSection.o > SimpleSection.nm
+
 elf.h:
 	cat /usr/include/elf.h > elf.h
 
@@ -29,4 +35,6 @@ clean:
 	rm -rf *.o
 	rm -rf SimpleSection.*.obj
 	rm -rf SimpleSection.*.read
+	rm -rf SimpleSection.nm
+	rm -rf SimpleSection.*.nm
 	rm -rf elf.h

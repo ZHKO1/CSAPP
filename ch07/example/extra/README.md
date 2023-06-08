@@ -18,6 +18,12 @@
     cat /usr/include/elf.h > elf.h
   3). 查看真正的段表结构 [SimpleSection.S.read]
     readelf -S SimpleSection.o > SimpleSection.S.read
+  4). 查看符号 [SimpleSection.nm]
+    nm SimpleSection.o > SimpleSection.nm
+  5). 查看符号表 [SimpleSection.s.read]
+    readelf -s SimpleSection.o > SimpleSection.s.read
+    
+  
   
 
 
