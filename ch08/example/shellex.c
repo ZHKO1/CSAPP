@@ -39,11 +39,15 @@ void eval(char *cmdline)
   {
     if (((pid = Fork()) == 0))
     {
-      if (execve(argv[0], argv, environ) < 0)
+      int r;
+      if ((r = execve(argv[0], argv, environ)) < 0)
       {
         printf("%s: Command not found.\n", argv[0]);
         exit(0);
       }
+
+      // execve 成功情况下从不返回，失败则返回-1
+      printf("---- execve return %d\n", r);
     }
 
     if (!bg)
