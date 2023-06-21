@@ -20,8 +20,7 @@ csapp.o:
 %: %.o csapp.o
 	$(CC) -o $@ $^ -lpthread
 
-test: $(PROGS_TEST)
-
+# test: $(PROGS_TEST)
 
 %.test: %
 	./$<
