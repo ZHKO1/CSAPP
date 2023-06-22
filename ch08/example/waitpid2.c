@@ -1,4 +1,4 @@
-#include "./lib/csapp.h"
+#include "../lib/csapp.h"
 #define N 2
 
 int main()
