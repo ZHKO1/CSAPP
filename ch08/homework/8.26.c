@@ -3,6 +3,11 @@
 #define MAXARGS 128
 #define MAXJOBS 100
 
+/**
+ * 具体请以shell lab为准
+ * 此代码存在各种问题，仅供参考
+ */
+
 struct job
 {
   unsigned int id;
