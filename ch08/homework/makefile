@@ -2,7 +2,7 @@
 # makefile
 #
 CC = gcc
-LIB = ../lib/csapp.c
+LIB = ../../lib/csapp.c
 
 SRCS = $(wildcard *.*.c)
 OBJS = $(patsubst %.c,%.o,$(SRCS))

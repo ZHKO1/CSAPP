@@ -1,4 +1,4 @@
-#include "../lib/csapp.h"
+#include "../../lib/csapp.h"
 #include <stdlib.h>
 /*
   这道题很奇怪

@@ -1,4 +1,4 @@
-#include "../lib/csapp.h"
+#include "../../lib/csapp.h"
 
 volatile sig_atomic_t pid;
 
