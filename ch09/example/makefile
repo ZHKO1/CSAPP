@@ -2,18 +2,29 @@
 # makefile
 #
 CC = gcc
-LIB = 
+LIB = ../../lib/csapp.c
 
 SRCS = $(wildcard *.c)
 PROGS = $(patsubst %.c,%,$(SRCS))
 PROGS_TEST = $(patsubst %.c,%.test,$(SRCS))
 
-all: $(PROGS)
+MEM = mm.c memlib.c  malloc.c
+MEM_PROGS = $(patsubst %.c,%.o,$(MEM))
+
+all: csapp.o malloc
+
+csapp.o:
+	$(CC) -o $@ -c $(LIB)
+
+%.o: %.c
+	$(CC) -o $@ -c $^
+
+malloc: csapp.o $(MEM_PROGS)
+	$(CC) -o $@ $^ -lpthread
 
 %: %.c
-	$(CC) -o $@ $<
-
-
+	$(CC) $(CFLAGS) -o $@ $< 
+	
 # test: $(PROGS_TEST)
 
 %.test: %
