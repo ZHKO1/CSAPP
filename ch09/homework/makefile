@@ -4,27 +4,22 @@
 CC = gcc
 LIB = ../../lib/csapp.c
 
-SRCS = $(wildcard *.c)
+SRCS = $(wildcard *.*.c)
+OBJS = $(patsubst %.c,%.o,$(SRCS))
 PROGS = $(patsubst %.c,%,$(SRCS))
 PROGS_TEST = $(patsubst %.c,%.test,$(SRCS))
 
-MEM = mm.c memlib.c  malloc.c
-MEM_PROGS = $(patsubst %.c,%.o,$(MEM))
-
-all: csapp.o malloc mmapcopy
+all: $(OBJS) csapp.o $(PROGS)
 
 csapp.o:
 	$(CC) -o $@ -c $(LIB)
 
 %.o: %.c
-	$(CC) -o $@ -c $^
+	$(CC) -o $@ -c $<
 
-malloc: csapp.o $(MEM_PROGS)
+%: %.o csapp.o
 	$(CC) -o $@ $^ -lpthread
 
-%: %.c
-	$(CC) $(CFLAGS) -o $@ $< 
-	
 # test: $(PROGS_TEST)
 
 %.test: %
