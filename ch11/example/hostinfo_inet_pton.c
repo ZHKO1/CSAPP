@@ -6,6 +6,7 @@
 #include <netdb.h>
 #include "../../lib/csapp.h"
 
+// 练习题11.4
 int main(int argc, char *argv[], char *envp[])
 {
     struct addrinfo *p;
@@ -35,10 +36,17 @@ int main(int argc, char *argv[], char *envp[])
     {
         memset(buf, 0, MAXLINE);
         memset(port, 0, MAXLINE);
-        Getnameinfo(p->ai_addr, p->ai_addrlen, buf, MAXLINE, port, MAXLINE, flags);
-        // 这里注意当getaddrinfo第二个参数设为http
-        // 可以看到port被设为80
-        printf("%s:%s\n", buf, port);
+
+        SA *ai_addr = p->ai_addr;
+        char *sa_data = ai_addr->sa_data;
+        uint16_t sin_port = *((uint16_t *)sa_data);
+        struct in_addr sin_addr = *((struct in_addr *)((char *)sa_data + 2));
+        const char *inet_ntop_result = inet_ntop(AF_INET, &sin_addr, buf, MAXLINE);
+        if (inet_ntop_result == NULL)
+        {
+            unix_error("inet_ntop error\n");
+        }
+        printf("%s:%d\n", buf, ntohs(sin_port));
     }
 
     Freeaddrinfo(listp);
