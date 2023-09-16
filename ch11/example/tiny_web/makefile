@@ -2,28 +2,27 @@
 # makefile
 #
 CC = gcc
+CFLAGS = -Wall -g
 LIB = ../../../lib/csapp.c
 
 SRCS = $(wildcard ./cgi-bin/*.c)
 OBJS = $(patsubst %.c,%.o,$(SRCS))
 PROGS = $(patsubst %.c,%,$(SRCS))
 
-all: $(OBJS) csapp.o $(PROGS) tiny
+TINYSRCS = $(wildcard *.c)
+TINYOBJS = $(patsubst %.c,%.o,$(TINYSRCS))
+TINYPROGS = $(patsubst %.c,%,$(TINYSRCS))
+
+all: $(OBJS) csapp.o $(PROGS) $(TINYOBJS) $(TINYPROGS)
 
 csapp.o:
-	$(CC) -o $@ -c $(LIB)
+	$(CC) $(CFLAGS) -o $@ -c $(LIB)
 
 %.o: %.c
-	$(CC) -o $@ -c $<
+	$(CC) $(CFLAGS) -o $@ -c $<
 
 %: %.o csapp.o
-	$(CC) -o $@ $^ -lpthread
-
-tiny.o: tiny.c
-	$(CC) -o $@ -c $<
-
-tiny: tiny.o csapp.o
-	$(CC) -o $@ $^ -lpthread
+	$(CC) $(CFLAGS) -o $@ $^ -lpthread
 
 
 .PHONY : clean
