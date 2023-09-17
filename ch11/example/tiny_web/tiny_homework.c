@@ -11,6 +11,10 @@ struct req
     struct req *next;
 };
 
+sigjmp_buf buf;
+
+void sigchild_handler(int sig);
+void sigpipe_handler(int sig);
 void doit(int fd);
 int check_method(int fd, char *method);
 void read_requesthdrs(rio_t *rp, struct req *head);
@@ -35,6 +39,9 @@ int main(int argc, char *argv[], char *envp[])
         exit(1);
     }
 
+    if (Signal(SIGCHLD, sigchild_handler) == SIG_ERR)
+        unix_error("signal child handler error");
+
     listenfd = Open_listenfd(argv[1]);
     while (1)
     {
@@ -48,6 +55,24 @@ int main(int argc, char *argv[], char *envp[])
     }
 }
 
+void sigchild_handler(int sig)
+{
+    int old_errno = errno;
+    int status;
+    pid_t pid;
+    while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
+    {
+    }
+    errno = old_errno;
+}
+
+void sigpipe_handler(int sig)
+{
+    int old_errno = errno;
+    siglongjmp(buf, 1);
+    errno = old_errno;
+}
+
 void doit(int fd)
 {
     int is_static;
@@ -59,6 +84,18 @@ void doit(int fd)
 
     Rio_readinitb(&rio, fd);
     memset(buf, 0, MAXLINE);
+
+    if (sigsetjmp(buf, 1))
+    {
+        free_req(&REQ_HEAD);
+        return;
+    }
+    else
+    {
+        if (Signal(SIGPIPE, sigpipe_handler) == SIG_ERR)
+            unix_error("signal child handler error");
+    }
+
     ssize_t rc = Rio_readlineb(&rio, buf, MAXLINE);
     if (rc == 0)
     {
