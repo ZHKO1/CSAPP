@@ -22,6 +22,7 @@ int main(int argc, char *argv[], char *envp[])
     while (Fgets(buf, MAXLINE, stdin) != NULL)
     {
         Rio_writen(clientfd, buf, strlen(buf));
+        memset(buf, 0, MAXLINE);
         Rio_readlineb(&rio, buf, MAXLINE);
         Fputs(buf, stdout);
     }
