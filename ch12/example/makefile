@@ -6,8 +6,10 @@ LIB = ../../lib/csapp.c
 
 SRCS = $(wildcard *.c)
 OBJS = $(patsubst %.c,%.o,$(SRCS))
-PROGS = $(patsubst %.c,%,$(SRCS))
-PROGS_TEST = $(patsubst %.c,%.test,$(SRCS))
+PROGS_ALL = $(patsubst %.c,%,$(SRCS))
+EXCLUDES = echo-cnt sbuf
+PROGS = $(filter-out ${EXCLUDES},$(PROGS_ALL))
+PROGS_TEST = $(patsubst %,%.test,$(PROGS))
 
 all: $(OBJS) csapp.o $(PROGS)
 
@@ -18,6 +20,9 @@ csapp.o:
 	$(CC) -o $@ -c $<
 
 %: %.o csapp.o
+	$(CC) -o $@ $^ -lpthread
+
+echoservert-pre: echoservert-pre.o echo-cnt.o sbuf.o csapp.o
 	$(CC) -o $@ $^ -lpthread
 
 test: $(PROGS_TEST)

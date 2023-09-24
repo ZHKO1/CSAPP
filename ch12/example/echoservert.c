@@ -46,11 +46,11 @@ int main(int argc, char *argv[], char *envp[])
     while (1)
     {
         clientlen = sizeof(struct sockaddr_storage);
-        printf("Main: ready accept...\n");
+        printf("ready accept...\n");
         connfdp = Malloc(sizeof(argv[1]));
         *connfdp = Accept(listenfd, (SA *)&clientaddr, &clientlen);
         Getnameinfo((SA *)&clientaddr, clientlen, client_hostname, MAXLINE, client_port, MAXLINE, 0);
-        printf("Main: connected to (%s %s)\n", client_hostname, client_port);
+        printf("connected to (%s %s)\n", client_hostname, client_port);
         Pthread_create(&tid, NULL, thread, connfdp);
     }
     exit(0);
