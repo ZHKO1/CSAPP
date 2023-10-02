@@ -41,8 +41,9 @@ TODO
 实际上echoservers.c示例就是答案，所以这题目到底是图个啥
 
 ## 12.23
-看dreamanddead老兄的意思，如果echoclient在Rio_writen之后不执行Close函数直接exit(0)(不确定这里是不是对应书里提到的发送部分行)，服务端就会接到Rio_readlineb error: Connection reset by peer的报错
+看dreamanddead老兄的意思，如果echoclient在Rio_writen之后不执行Close函数直接exit(0)，服务端就会触发Rio_readlineb error: Connection reset by peer的报错
 我这里试了下，确实能重现，但是往往需要echoclient执行几遍才能看到，具体原因不明
+还有个问题就是发送的是完整的行，所以这里不确定是不是对应书里提到的发送部分行
 假设dreamanddead老兄对题目的理解是对的，那么他给出的解决方法其实就是显式处理问题，而不是靠Rio包内的判断错误逻辑
 
 ## 12.25
@@ -59,3 +60,86 @@ TODO
 感觉题目质量不行啊，`a<b<c`是什么鬼，看都看不懂
 
 ## 12.31
+感觉这题应该放在第八章里，而不是这一章
+
+## 12.32
+要求对select有更深的了解，看看select是否有关于时间的参数
+
+## 12.33
+虽然用线程了，但看起来主线程没法判断多个线程里哪个线程先结束了，不是很优雅
+
+## 12.34
+dreamanddead老兄的答案看起来是发挥多核的效果了，线程数量改大是有效果的
+那ch12/example/psum-mutex.c 咋就发挥不出来？
+
+## 12.35
+跟着dreamanddead老兄用wrk压测
+Running 1s test @ http://localhost/
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   793.11us  334.38us   7.93ms   88.57%
+    Req/Sec     6.18k     1.01k    9.59k    85.71%
+  12914 requests in 1.10s, 22.83MB read
+Requests/sec:  11747.74
+Transfer/sec:     20.77MB
+
+Running 1s test @ http://localhost/cgi-bin/adder
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     1.88ms    1.29ms  20.50ms   95.19%
+    Req/Sec     2.77k   366.29     3.09k    81.82%
+  6058 requests in 1.10s, 1.33MB read
+  Socket errors: connect 0, read 6058, write 0, timeout 0
+Requests/sec:   5507.91
+Transfer/sec:      1.21MB
+
+## 12.36
+Running 1s test @ http://localhost/
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   576.52us  154.96us   2.58ms   92.07%
+    Req/Sec     8.42k     1.06k    9.62k    63.64%
+  18411 requests in 1.10s, 32.55MB read
+Requests/sec:  16747.06
+Transfer/sec:     29.61MB
+比起12.35有优势
+
+Running 1s test @ http://localhost/cgi-bin/adder
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     6.45ms  794.01us   9.44ms   73.49%
+    Req/Sec   770.70     57.00     0.85k    60.00%
+  1535 requests in 1.00s, 345.00KB read
+  Socket errors: connect 0, read 1535, write 0, timeout 0
+Requests/sec:   1534.13
+Transfer/sec:    344.80KB
+比起12.35反而有性能劣势了，原因是因为这里用Wait来回收处理子进程，影响了效率
+PS: 如果不用Wait，Select会报中断错误
+虽然感觉用Wait看起来符合场景，但总感觉不太对劲
+
+## 12.37
+Running 1s test @ http://localhost/
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   637.68us  177.29us   2.87ms   85.72%
+    Req/Sec     7.59k   391.51     8.29k    59.09%
+  16596 requests in 1.10s, 29.34MB read
+Requests/sec:  15088.95
+Transfer/sec:     26.68MB
+比起12.35有优势
+
+Running 1s test @ http://localhost/cgi-bin/adder
+  2 threads and 10 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency     2.76ms  378.12us   5.53ms   79.97%
+    Req/Sec     1.79k    77.82     1.91k    59.09%
+  3914 requests in 1.10s, 0.86MB read
+  Socket errors: connect 0, read 3914, write 0, timeout 0
+Requests/sec:   3558.45
+Transfer/sec:    799.67KB
+比起12.35反而有性能劣势了，原因不明
+
+
+
+
+

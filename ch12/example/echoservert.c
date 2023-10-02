@@ -47,7 +47,7 @@ int main(int argc, char *argv[], char *envp[])
     {
         clientlen = sizeof(struct sockaddr_storage);
         printf("ready accept...\n");
-        connfdp = Malloc(sizeof(argv[1]));
+        connfdp = Malloc(sizeof(int));
         *connfdp = Accept(listenfd, (SA *)&clientaddr, &clientlen);
         Getnameinfo((SA *)&clientaddr, clientlen, client_hostname, MAXLINE, client_port, MAXLINE, 0);
         printf("connected to (%s %s)\n", client_hostname, client_port);
