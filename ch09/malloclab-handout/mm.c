@@ -61,16 +61,17 @@ team_t team = {
     /* Second member's email address (leave blank if none) */
     ""};
 
+#define WSIZE 4
+#define DSIZE (WSIZE << 1)
+#define CHUNKSIZE (1 << 4)
+#define WUNIT uint32_t
+
 /* single word (4) or double word (8) alignment */
-#define ALIGNMENT 8
+#define ALIGNMENT (DSIZE)
 
 /* rounds up to the nearest multiple of ALIGNMENT */
-#define ALIGN(size) (((size) + (ALIGNMENT - 1)) & ~0x7)
+#define ALIGN(size) (ALIGNMENT * (((size) +  ALIGNMENT + (ALIGNMENT - 1)) / ALIGNMENT))
 #define SIZE_T_SIZE (ALIGN(sizeof(size_t)))
-
-#define WSIZE 4
-#define DSIZE 8
-#define CHUNKSIZE (1 << 4)
 
 #define MIN_BLOCK_SIZE (WSIZE + DSIZE + WSIZE)
 
@@ -79,8 +80,8 @@ team_t team = {
 
 #define PACK(size, alloc, pre_alloc) ((size) | (alloc) | ((pre_alloc) << 1))
 
-#define GET(p) (*(unsigned int *)(p))
-#define PUT(p, val) (*(unsigned int *)(p) = (unsigned int)(val))
+#define GET(p) (*(WUNIT *)(p))
+#define PUT(p, val) (*(WUNIT *)(p) = (WUNIT)(val))
 
 #define GET_SIZE(p) ((GET(p)) & (~(0x7)))
 #define GET_ALLOC(p) ((GET(p)) & 0x1)
@@ -104,7 +105,7 @@ team_t team = {
 #define IS_CHECK 0
 #define IS_LOG 0
 
-static size_t mm_check_size = 0;
+// static size_t mm_check_size = 0;
 static size_t mm_check_index = 0;
 
 static char *heap_list = NULL;
@@ -267,9 +268,9 @@ static void *find_fit(size_t asize)
 static void place(void *bp, size_t asize)
 {
   remove_list(bp);
-  unsigned int bp_size = GET_SIZE(HDRP(bp));
-  unsigned int bp_prealloc = GET_PRE_ALLOC(HDRP(bp));
-  unsigned int rest_size = bp_size - asize;
+  WUNIT bp_size = GET_SIZE(HDRP(bp));
+  WUNIT bp_prealloc = GET_PRE_ALLOC(HDRP(bp));
+  WUNIT rest_size = bp_size - asize;
   if (rest_size < MIN_BLOCK_SIZE)
   {
     PUT(HDRP(bp), PACK(bp_size, 1, bp_prealloc));
@@ -624,18 +625,18 @@ void mm_log()
   {
     word = mm_block_log(word);
   }
-  unsigned int size = GET_SIZE(word);
-  unsigned int alloc = GET_ALLOC(word);
-  unsigned int pre_alloc = GET_PRE_ALLOC(word);
+  WUNIT size = GET_SIZE(word);
+  WUNIT alloc = GET_ALLOC(word);
+  WUNIT pre_alloc = GET_PRE_ALLOC(word);
   printf("[%2d/%d/%d]\n", size, alloc, pre_alloc);
 }
 
 static char *mm_block_log(char *head)
 {
-  unsigned int size = GET_SIZE(head);
-  unsigned int alloc = GET_ALLOC(head);
-  unsigned int pre_alloc = GET_PRE_ALLOC(head);
-  unsigned int word_size = size / WSIZE;
+  WUNIT size = GET_SIZE(head);
+  WUNIT alloc = GET_ALLOC(head);
+  WUNIT pre_alloc = GET_PRE_ALLOC(head);
+  WUNIT word_size = size / WSIZE;
   if (!alloc)
   {
     for (size_t i = 0; i < word_size; i++)
@@ -643,9 +644,9 @@ static char *mm_block_log(char *head)
       char *block = head + i * WSIZE;
       if ((i == 0) || (i == word_size - 1))
       {
-        unsigned int size = GET_SIZE(block);
-        unsigned int alloc = GET_ALLOC(block);
-        unsigned int pre_alloc = GET_PRE_ALLOC(block);
+        WUNIT size = GET_SIZE(block);
+        WUNIT alloc = GET_ALLOC(block);
+        WUNIT pre_alloc = GET_PRE_ALLOC(block);
         printf("[%2d/%d/%d]", size, alloc, pre_alloc);
       }
       else if ((i == 1) || (i == 2))
@@ -665,8 +666,8 @@ static char *mm_block_log(char *head)
       char *block = head + i * WSIZE;
       if ((i == 0))
       {
-        unsigned int size = GET_SIZE(block);
-        unsigned int alloc = GET_ALLOC(block);
+        WUNIT size = GET_SIZE(block);
+        WUNIT alloc = GET_ALLOC(block);
         printf("[%2d/%d/%d]", size, alloc, pre_alloc);
       }
       else
